@@ -8,16 +8,17 @@ import os
 
 load_dotenv()
 
-RANDOMLINK = 'https://en.wikipedia.org/wiki/Special:Random'
+RANDOMLINK = 'https://en.wikipedia.org/wiki/Psychosomatic_Medicine_(journal)'
+#RANDOMLINK = 'https://en.wikipedia.org/wiki/Special:Random'
 EMAIL = 'dailywikipediaarticle@gmail.com'
 HOST = 'smtp.gmail.com'
 PORT = 587
 
-template = 'messageTemplate.txt'
+template = 'WikiTemplate.html'
 
 server = smtplib.SMTP( host = HOST, port = PORT)
 server.starttls()
-server.login(EMAIL, os.environ.get('Password'))
+server.login(EMAIL, os.environ.get('EmailPassword'))
 
 request = requests.get(RANDOMLINK)
 content = BeautifulSoup(request.content, 'html.parser')
