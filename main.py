@@ -16,7 +16,7 @@ randomLink = 'https://en.wikipedia.org/wiki/Special:Random'
 request = requests.get(randomLink)
 content = BeautifulSoup(request.content, 'html.parser')
 
-title = content.find(id = 'firstHeading')
+title = content.find(id = 'firstHeading').text
 summary = wikipedia.summary(title)
 
 url = 'https://en.wikipedia.org/wiki/%s ' %title
@@ -33,7 +33,7 @@ message = MIMEMultipart()
 
 message['From'] = 'DailyWikipedia dailywikipediaarticle@gmail.com'
 message['To'] = 'camsboardprofile15@gmail.com'
-message['Subject'] = 'Test subject'
+message['Subject'] = 'Your daily topic is: %s ' %title
 
 message.attach(MIMEText(messageTemplate, 'plain'))
 
