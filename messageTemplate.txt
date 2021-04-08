@@ -1,5 +1,0 @@
-${TITLE}
-
-${SUMMARY}
-
-If would like to continue reading this article, you may do so at ${URL}
