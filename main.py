@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import wikipedia
-import time
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
