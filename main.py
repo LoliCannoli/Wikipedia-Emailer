@@ -1,37 +1,57 @@
 from sendEmail import sendEmail
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+from cryptography.fernet import Fernet
+import emailStorage
 import wikipedia
 import requests
-import smtplib
+
+
+
+#Important Variables
+RANDOMLINK = 'https://en.wikipedia.org/wiki/Special:Random'
+TEMPLATE = 'WikiTemplate.html'
+
+#Setup Database
+import sqlite3
+
+database = sqlite3.connect('emails.db')
+
+#Load in .env
+from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-RANDOMLINK = 'https://en.wikipedia.org/wiki/Psychosomatic_Medicine_(journal)'
-#RANDOMLINK = 'https://en.wikipedia.org/wiki/Special:Random'
-EMAIL = 'dailywikipediaarticle@gmail.com'
-HOST = 'smtp.gmail.com'
-PORT = 587
+def main(database):
+    import time
 
-template = 'WikiTemplate.html'
+    cursor = database.cursor()
+    cursor.execute('SELECT * FROM emails')
 
-server = smtplib.SMTP( host = HOST, port = PORT)
-server.starttls()
-server.login(EMAIL, os.environ.get('EmailPassword'))
-
-request = requests.get(RANDOMLINK)
-content = BeautifulSoup(request.content, 'html.parser')
-
-title, summary = None, None
-while title is None and summary is None:
-    try:
-        title = content.find(id = 'firstHeading').text
-        summary = wikipedia.summary(title)
-    except:
-        pass
+    for row in cursor:
+        startTime = time.time()
+        row = str(row).split('\'')[1]
+        row = row.encode()
 
 
-url = 'https://en.wikipedia.org/wiki/%s' %title.replace(' ', '_')
+        email = emailStorage.Email(row)
+        email.decryption(Fernet((os.environ.get('Key').split('\'')[1]).encode()))
 
-sendEmail(title, summary, url, template, server)
+        adress = email.email
+
+        title, summary = None, None
+        while title is None and summary is None:
+            try:
+                request = requests.get(RANDOMLINK)
+                content = BeautifulSoup(request.content, 'html.parser')
+                title = content.find(id = 'firstHeading').text
+                summary = wikipedia.summary(title)
+            except:
+                pass
+
+        url = 'https://en.wikipedia.org/wiki/%s' %title.replace(' ', '_')
+
+        print('Email took: ', time.time()- startTime)
+
+        sendEmail(title, summary, url, TEMPLATE, adress)
+main(database)

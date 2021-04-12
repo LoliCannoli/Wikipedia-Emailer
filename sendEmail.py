@@ -1,18 +1,33 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from string import Template
 
-def sendEmail(title, summary, url, template, server):
+def sendEmail(title, summary, url, template, adress):
 
+    #Setting up email server
+    import smtplib
+    from dotenv import load_dotenv
+    import os
+
+    load_dotenv()
+
+    EMAIL = 'dailywikipediaarticle@gmail.com'
+    HOST = 'smtp.gmail.com'
+    PORT = 587
+
+    server = smtplib.SMTP( host = HOST, port = PORT)
+    server.starttls()
+    server.login(EMAIL, os.environ.get('EmailPassword'))
+
+    #Assemble MetaData
     message = MIMEMultipart()
 
     message['From'] = 'DailyWikipedia dailywikipediaarticle@gmail.com'
-    message['To'] = 'camsboardprofile15@gmail.com'
+    message['To'] = adress
     message['Subject'] = 'Your daily topic is: %s ' %title
 
-
-
-    html = open(template).read().format(Title = title, Summary = summary, URL = url) #unformatHtml.format(Title = title, Summary = summary, URL = url)
+    #Assemble and send Message
+    html = open(template).read().format(Title = title,
+                                        Summary = summary,
+                                        URL = url)
     message.attach(MIMEText(html, 'html'))
-    #message.attach(MIMEText(text, 'plain'))
     server.send_message(message)
