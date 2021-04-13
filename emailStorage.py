@@ -37,8 +37,8 @@ class Email():
 
     def storeEmail(self):
         #If not hashed hashed then try to insert in database
-        if self.hashed == False:
-            self.encryption(Fernet(str(os.environ.get('Key'))))
+        if self.ishashed == False:
+            self.encryption(Fernet((os.environ.get('Key').split('\'')[1]).encode()))
         try:
             cursor.execute("INSERT INTO emails VALUES (?)", (self.email,))
             database.commit()
